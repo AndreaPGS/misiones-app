@@ -1,0 +1,57 @@
+<% content_for :title, "Editar asignación" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Editar fechas</h1>
+    <p class="admin-page-subtitle">
+      <%= @assignment.guest.name %> — <%= @assignment.mission.description.truncate(40) %>
+    </p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card__body">
+    <p class="form-hint" style="margin-bottom:var(--space-lg);">
+      Solo se pueden corregir las fechas. Para cambiar el estado usa el botón
+      <strong>Confirmar completada</strong> en el detalle.
+    </p>
+
+    <% if @assignment.errors.any? %>
+      <div class="error-summary">
+        <p class="error-summary__title"><%= pluralize(@assignment.errors.count, "error") %></p>
+        <ul class="error-summary__list">
+          <% @assignment.errors.full_messages.each do |msg| %>
+            <li class="error-summary__item"><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: [:admin, @assignment], class: "admin-form" do |f| %>
+
+      <div class="form-group--row">
+        <div class="form-group">
+          <%= f.label :assigned_at, "Fecha de asignación", class: "form-label" %>
+          <%= f.datetime_local_field :assigned_at,
+                value: @assignment.assigned_at&.strftime("%Y-%m-%dT%H:%M"),
+                class: "form-input" %>
+        </div>
+        <div class="form-group">
+          <%= f.label :completed_at, "Fecha de completado", class: "form-label" %>
+          <%= f.datetime_local_field :completed_at,
+                value: @assignment.completed_at&.strftime("%Y-%m-%dT%H:%M"),
+                class: "form-input" %>
+          <p class="form-hint">Solo rellenar si fue completada.</p>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Guardar fechas", class: "admin-btn admin-btn--primary" %>
+        <%= link_to "Cancelar",
+              admin_mission_assignment_path(@assignment),
+              class: "admin-btn admin-btn--ghost" %>
+      </div>
+
+    <% end %>
+  </div>
+</div>

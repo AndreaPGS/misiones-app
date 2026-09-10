@@ -1,0 +1,53 @@
+<% content_for :title, "Invitados" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Invitados</h1>
+    <p class="admin-page-subtitle"><%= @guests.count %> registrados</p>
+  </div>
+  <%= link_to "＋ Nuevo invitado", new_admin_guest_path, class: "admin-btn admin-btn--primary" %>
+</div>
+
+<div class="admin-card">
+  <% if @guests.any? %>
+    <div class="admin-list">
+      <% @guests.each do |guest| %>
+        <div class="admin-list-item">
+          <div class="avatar avatar--sm admin-list-item__avatar">
+            <% if guest.picture.present? %>
+              <img src="<%= guest.picture %>" alt="<%= guest.name %>">
+            <% else %>
+              <div class="avatar__initials" style="font-size:.75rem;">
+                <%= guest.name.split.map(&:first).first(2).join.upcase %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="admin-list-item__body">
+            <p class="admin-list-item__title"><%= guest.name %></p>
+            <p class="admin-list-item__meta">
+              ⭐ <%= guest.points %> pts &nbsp;·&nbsp; 🔄 <%= guest.attempts %> cambios
+              <% if guest.current_mission %>
+                &nbsp;·&nbsp; <span class="status-chip status-chip--assigned">Misión activa</span>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="admin-list-item__actions">
+            <%= link_to "Ver", admin_guest_path(guest), class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+            <%= link_to "✏", edit_admin_guest_path(guest), class: "admin-btn admin-btn--primary admin-btn--sm" %>
+            <%= button_to "🗑", admin_guest_path(guest),
+                  method: :delete,
+                  class: "admin-btn admin-btn--danger admin-btn--sm",
+                  data: { turbo_confirm: "¿Eliminar a #{guest.name}? Se borrarán sus asignaciones." } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="admin-card__body" style="text-align:center; color:var(--text-soft); padding: var(--space-2xl);">
+      <p style="font-size:2rem; margin-bottom:var(--space-md);">👥</p>
+      <p>Aún no hay invitados. <%= link_to "Crear el primero", new_admin_guest_path %></p>
+    </div>
+  <% end %>
+</div>

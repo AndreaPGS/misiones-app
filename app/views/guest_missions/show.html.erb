@@ -1,0 +1,45 @@
+<% content_for :title, "Misión — #{@guest.name.split.first}" %>
+
+<div class="profile">
+
+  <%# ── Hero compacto ── %>
+  <div class="profile__hero">
+    <div class="avatar avatar--lg profile__hero-image">
+      <% if @guest.picture.present? %>
+        <img src="<%= @guest.picture %>" alt="<%= @guest.name %>">
+      <% else %>
+        <div class="avatar__initials">
+          <%= @guest.name.split.map(&:first).first(2).join.upcase %>
+        </div>
+      <% end %>
+    </div>
+
+    <h1 class="profile__name"><%= @guest.name %></h1>
+
+    <div class="stats-row">
+      <div class="stat-badge">
+        <span class="stat-badge__value">⭐ <%= @guest.points %></span>
+        <span class="stat-badge__label">Puntos</span>
+      </div>
+      <div class="stat-badge">
+        <span class="stat-badge__value stat-badge__value--attempts">🔄 <%= @guest.attempts %></span>
+        <span class="stat-badge__label">Cambios</span>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Estado de misión ── %>
+  <div class="profile__section">
+    <p class="section-label">Tu misión secreta</p>
+    <%= render "guest_missions/mission_state",
+          guest: @guest,
+          assignment: @assignment,
+          mission: @mission %>
+  </div>
+
+  <%# ── Volver al perfil ── %>
+  <div class="profile__section mt-lg">
+    <%= link_to "← Volver a mi perfil", guest_path(@guest), class: "btn btn--ghost btn--sm" %>
+  </div>
+
+</div>

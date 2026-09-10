@@ -1,0 +1,14 @@
+<% content_for :title, "Nuevo invitado" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Nuevo invitado</h1>
+    <p class="admin-page-subtitle">Añade un jugador a la fiesta</p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card__body">
+    <%= render "form", guest: @guest %>
+  </div>
+</div>

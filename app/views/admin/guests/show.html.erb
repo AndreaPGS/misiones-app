@@ -1,0 +1,111 @@
+<% content_for :title, @guest.name %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title"><%= @guest.name %></h1>
+    <p class="admin-page-subtitle">Perfil del invitado</p>
+  </div>
+  <div style="display:flex; gap:var(--space-sm);">
+    <%= link_to "✏ Editar", edit_admin_guest_path(@guest), class: "admin-btn admin-btn--primary" %>
+    <%= button_to "🗑 Eliminar", admin_guest_path(@guest),
+          method: :delete,
+          class: "admin-btn admin-btn--danger",
+          data: { turbo_confirm: "¿Eliminar a #{@guest.name}?" } %>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 2fr; gap:var(--space-lg); align-items:start;">
+
+  <%# Avatar card %>
+  <div class="admin-card">
+    <div class="admin-card__body" style="text-align:center;">
+      <div class="avatar avatar--xl" style="margin:0 auto var(--space-md);">
+        <% if @guest.picture.present? %>
+          <img src="<%= @guest.picture %>" alt="<%= @guest.name %>">
+        <% else %>
+          <div class="avatar__initials" style="font-size:2rem;">
+            <%= @guest.name.split.map(&:first).first(2).join.upcase %>
+          </div>
+        <% end %>
+      </div>
+      <p style="font-size:1.25rem; font-weight:800; margin-bottom:var(--space-sm);"><%= @guest.name %></p>
+      <div style="display:flex; gap:var(--space-sm); justify-content:center;">
+        <span class="status-chip" style="background:rgba(255,209,102,0.2);color:#c49a00;">⭐ <%= @guest.points %> pts</span>
+        <span class="status-chip" style="background:rgba(6,214,160,0.2);color:#047a5a;">🔄 <%= @guest.attempts %></span>
+      </div>
+    </div>
+  </div>
+
+  <%# Details + history %>
+  <div style="display:flex; flex-direction:column; gap:var(--space-lg);">
+
+    <div class="admin-card">
+      <div class="admin-card__header"><h2 class="admin-card__title">Datos</h2></div>
+      <div class="admin-card__body">
+        <div class="detail-grid">
+          <div class="detail-row">
+            <span class="detail-label">Teléfono</span>
+            <span class="detail-value"><%= @guest.phone.presence || "—" %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Email</span>
+            <span class="detail-value"><%= @guest.email.presence || "—" %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Foto (URL)</span>
+            <span class="detail-value" style="word-break:break-all; font-size:0.8125rem;">
+              <%= @guest.picture.presence || "—" %>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Misión activa</span>
+            <span class="detail-value">
+              <% if @guest.current_mission %>
+                <span class="status-chip status-chip--assigned">Sí</span>
+                &nbsp;<%= @guest.current_mission.description.truncate(50) %>
+              <% else %>
+                <span class="status-chip status-chip--abandoned">No</span>
+              <% end %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Historial de misiones (<%= @assignments.count %>)</h2>
+        <%= link_to "＋ Asignar", new_admin_mission_assignment_path(guest_id: @guest.id),
+              class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+      </div>
+      <div class="admin-card__body" style="padding:0;">
+        <% if @assignments.any? %>
+          <div class="admin-list">
+            <% @assignments.each do |a| %>
+              <div class="admin-list-item">
+                <div class="admin-list-item__body">
+                  <p class="admin-list-item__title"><%= a.mission.description.truncate(60) %></p>
+                  <p class="admin-list-item__meta">
+                    <span class="<%= status_chip_class(a.status) %>"><%= status_label(a.status) %></span>
+                    &nbsp;· <%= a.assigned_at&.strftime("%-d %b %H:%M") %>
+                    <% if a.completed? %>&nbsp;→ +<%= a.mission.score %> pts<% end %>
+                  </p>
+                </div>
+                <div class="admin-list-item__actions">
+                  <%= link_to "Ver", admin_mission_assignment_path(a), class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="padding:var(--space-lg); color:var(--text-soft); text-align:center;">Sin historial aún.</p>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="mt-lg">
+  <%= link_to "← Volver a invitados", admin_guests_path, class: "admin-btn admin-btn--ghost" %>
+</div>

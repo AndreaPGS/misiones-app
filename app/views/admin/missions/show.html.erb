@@ -1,0 +1,101 @@
+<% content_for :title, "Misión" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Detalle de misión</h1>
+    <p class="admin-page-subtitle">
+      <% if @mission.active? %>
+        <span class="status-chip status-chip--completed">Activa</span>
+      <% else %>
+        <span class="status-chip status-chip--abandoned">Inactiva</span>
+      <% end %>
+    </p>
+  </div>
+  <div style="display:flex; gap:var(--space-sm);">
+    <%= link_to "✏ Editar", edit_admin_mission_path(@mission), class: "admin-btn admin-btn--primary" %>
+    <%= button_to "🗑 Eliminar", admin_mission_path(@mission),
+          method: :delete,
+          class: "admin-btn admin-btn--danger",
+          data: { turbo_confirm: "¿Eliminar esta misión?" } %>
+  </div>
+</div>
+
+<div style="display:grid; gap:var(--space-lg);">
+
+  <div class="admin-card">
+    <div class="admin-card__body">
+      <div class="mission-card" style="box-shadow:none; border:2px solid var(--muted); margin-bottom:var(--space-lg);">
+        <div class="mission-card__header">
+          <span class="mission-card__icon">🎯</span>
+          <span class="mission-card__score">★ <%= @mission.score %> pts</span>
+        </div>
+        <p class="mission-card__description"><%= @mission.description %></p>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-row">
+          <span class="detail-label">Personaje objetivo</span>
+          <span class="detail-value">
+            <%= link_to @mission.target.name, admin_guest_path(@mission.target),
+                  class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Invitados involucrados</span>
+          <span class="detail-value">
+            <% if @target_guests.any? %>
+              <% @target_guests.each do |g| %>
+                <span class="status-chip" style="background:rgba(17,138,178,0.1);color:var(--blue);">
+                  <%= g.name.split.first %>
+                </span>
+              <% end %>
+            <% else %>
+              —
+            <% end %>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Restringidos</span>
+          <span class="detail-value">
+            <% if @restricted_guests.any? %>
+              <% @restricted_guests.each do |g| %>
+                <span class="status-chip status-chip--abandoned"><%= g.name.split.first %></span>
+              <% end %>
+            <% else %>
+              <span style="color:var(--text-soft);">Ninguno</span>
+            <% end %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @assignments.any? %>
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Asignaciones (<%= @assignments.count %>)</h2>
+      </div>
+      <div class="admin-card__body" style="padding:0;">
+        <div class="admin-list">
+          <% @assignments.each do |a| %>
+            <div class="admin-list-item">
+              <div class="admin-list-item__body">
+                <p class="admin-list-item__title"><%= a.guest.name %></p>
+                <p class="admin-list-item__meta">
+                  <span class="<%= status_chip_class(a.status) %>"><%= status_label(a.status) %></span>
+                  &nbsp;· <%= a.assigned_at&.strftime("%-d %b %H:%M") %>
+                </p>
+              </div>
+              <%= link_to "Ver", admin_mission_assignment_path(a), class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</div>
+
+<div class="mt-lg">
+  <%= link_to "← Volver a misiones", admin_missions_path, class: "admin-btn admin-btn--ghost" %>
+</div>

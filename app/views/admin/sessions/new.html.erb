@@ -1,0 +1,42 @@
+<% content_for :title, "Acceso admin" %>
+
+<%# Override: login page doesn't use the sidebar shell — just a centered card %>
+<% content_for :head do %>
+  <style>
+    .admin-body  { background: var(--deep); }
+    .admin-shell { display: block; }
+    .admin-sidebar { display: none; }
+    .admin-main { max-width: 100%; padding: 0; }
+  </style>
+<% end %>
+
+<div class="admin-login">
+  <div class="admin-login__card">
+    <div class="admin-login__brand">
+      <span class="admin-login__icon">🔐</span>
+      <h1 class="admin-login__title">Panel Admin</h1>
+      <p class="admin-login__subtitle">Ingresa la palabra secreta</p>
+    </div>
+
+    <%= form_with url: admin_session_path, method: :post, class: "admin-form" do |f| %>
+      <% if alert.present? %>
+        <div class="error-summary">
+          <p class="error-summary__title">⚠ <%= alert %></p>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= label_tag :password, "Palabra secreta", class: "form-label form-label--required" %>
+        <%= password_field_tag :password, nil,
+              class: "form-input",
+              placeholder: "••••••••",
+              autocomplete: "off",
+              autofocus: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= submit_tag "Entrar →", class: "admin-btn admin-btn--dark admin-btn--full" %>
+      </div>
+    <% end %>
+  </div>
+</div>

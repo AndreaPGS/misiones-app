@@ -1,0 +1,14 @@
+<% content_for :title, "Editar misión" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Editar misión</h1>
+    <p class="admin-page-subtitle"><%= @mission.description.truncate(50) %></p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card__body">
+    <%= render "form", mission: @mission %>
+  </div>
+</div>

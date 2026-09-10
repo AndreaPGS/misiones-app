@@ -1,0 +1,97 @@
+<%# Partial: shared form for new/edit mission %>
+
+<% if mission.errors.any? %>
+  <div class="error-summary">
+    <p class="error-summary__title"><%= pluralize(mission.errors.count, "error") %></p>
+    <ul class="error-summary__list">
+      <% mission.errors.full_messages.each do |msg| %>
+        <li class="error-summary__item"><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: [:admin, mission], class: "admin-form" do |f| %>
+
+  <div class="form-group">
+    <%= f.label :description, "Descripción", class: "form-label form-label--required" %>
+    <%= f.text_area :description, class: "form-textarea",
+          placeholder: "Describe la misión secreta con detalle...",
+          autofocus: true %>
+  </div>
+
+  <div class="form-group--row">
+    <div class="form-group">
+      <%= f.label :score, "Puntaje", class: "form-label form-label--required" %>
+      <%= f.number_field :score, class: "form-input", min: 1, placeholder: "20" %>
+    </div>
+    <div class="form-group">
+      <%= f.label :target_id, "Personaje objetivo", class: "form-label form-label--required" %>
+      <%= f.select :target_id,
+            options_from_collection_for_select(@all_guests, :id, :name, mission.target_id),
+            { prompt: "Seleccionar invitado…" },
+            class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div style="display:flex; align-items:center; gap:var(--space-sm);">
+      <%= f.check_box :active, class: "form-input", style: "width:auto;" %>
+      <%= f.label :active, "Misión activa (disponible para asignar)", class: "form-label" %>
+    </div>
+  </div>
+
+  <%# Invitados involucrados (target_guests HABTM) %>
+  <div class="form-group">
+    <p class="form-label">Invitados involucrados</p>
+    <p class="form-hint" style="margin-bottom:var(--space-sm);">
+      Personajes que participan en esta misión (informativo).
+    </p>
+    <div class="guest-chips">
+      <% @all_guests.each do |guest| %>
+        <label class="guest-chip-label">
+          <input type="checkbox"
+                 name="mission[target_guest_ids][]"
+                 value="<%= guest.id %>"
+                 <%= "checked" if mission.persisted? && mission.target_guests.include?(guest) %>>
+          <span class="guest-chip">
+            <%= guest.name.split.first %>
+          </span>
+        </label>
+      <% end %>
+      <%# Hidden field ensures empty array is sent when nothing is checked %>
+      <input type="hidden" name="mission[target_guest_ids][]" value="">
+    </div>
+  </div>
+
+  <%# Invitados restringidos (restricted_guests HABTM) %>
+  <div class="form-group">
+    <p class="form-label">Invitados restringidos</p>
+    <p class="form-hint" style="margin-bottom:var(--space-sm);">
+      Estos invitados NO podrán recibir esta misión.
+    </p>
+    <div class="guest-chips">
+      <% @all_guests.each do |guest| %>
+        <label class="guest-chip-label">
+          <input type="checkbox"
+                 name="mission[restricted_guest_ids][]"
+                 value="<%= guest.id %>"
+                 <%= "checked" if mission.persisted? && mission.restricted_guests.include?(guest) %>>
+          <span class="guest-chip" style="--chip-active-bg: var(--pink);">
+            <%= guest.name.split.first %>
+          </span>
+        </label>
+      <% end %>
+      <input type="hidden" name="mission[restricted_guest_ids][]" value="">
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit mission.persisted? ? "Guardar cambios" : "Crear misión",
+          class: "admin-btn admin-btn--primary" %>
+    <%= link_to "Cancelar",
+          mission.persisted? ? admin_mission_path(mission) : admin_missions_path,
+          class: "admin-btn admin-btn--ghost" %>
+  </div>
+
+<% end %>

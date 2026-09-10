@@ -1,0 +1,88 @@
+<% content_for :title, "Ranking" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">🏆 Ranking</h1>
+    <p class="admin-page-subtitle">Clasificación por puntos</p>
+  </div>
+</div>
+
+<% if @ranked_guests.any? %>
+
+  <%# ── Podio top 3 ── %>
+  <% top3 = @ranked_guests.first(3) %>
+  <% if top3.size >= 2 %>
+    <div class="podium">
+      <%# Slot order: 2nd (left), 1st (center, taller), 3rd (right) %>
+      <% podium_order = [top3[1], top3[0], top3[2]].compact %>
+      <% podium_classes = ["podium-slot--second", "podium-slot--first", "podium-slot--third"] %>
+      <% medals = ["🥈", "🥇", "🥉"] %>
+
+      <% podium_order.each_with_index do |guest, i| %>
+        <div class="podium-slot <%= podium_classes[i] %>">
+          <span class="podium-medal"><%= medals[i] %></span>
+          <div class="avatar avatar--md">
+            <% if guest.picture.present? %>
+              <img src="<%= guest.picture %>" alt="<%= guest.name %>">
+            <% else %>
+              <div class="avatar__initials" style="font-size:1rem;">
+                <%= guest.name.split.map(&:first).first(2).join.upcase %>
+              </div>
+            <% end %>
+          </div>
+          <p class="podium-name"><%= guest.name.split.first %></p>
+          <span class="podium-pts">⭐ <%= guest.points %></span>
+          <div class="podium-bar"></div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Lista completa ── %>
+  <div class="ranking-list admin-card" style="overflow:hidden;">
+    <% @ranked_guests.each_with_index do |guest, i| %>
+      <% pos = i + 1 %>
+      <div class="ranking-row <%= "ranking-row--first" if pos == 1 %><%= " ranking-row--second" if pos == 2 %><%= " ranking-row--third" if pos == 3 %>">
+        <span class="ranking-pos">
+          <% if pos == 1 %>🥇
+          <% elsif pos == 2 %>🥈
+          <% elsif pos == 3 %>🥉
+          <% else %><%= pos %>
+          <% end %>
+        </span>
+
+        <div class="avatar avatar--sm">
+          <% if guest.picture.present? %>
+            <img src="<%= guest.picture %>" alt="<%= guest.name %>">
+          <% else %>
+            <div class="avatar__initials" style="font-size:.75rem;">
+              <%= guest.name.split.map(&:first).first(2).join.upcase %>
+            </div>
+          <% end %>
+        </div>
+
+        <span class="ranking-name"><%= guest.name %></span>
+
+        <% if guest.current_mission %>
+          <span class="status-chip status-chip--assigned" style="margin-right:var(--space-sm);">
+            Misión activa
+          </span>
+        <% end %>
+
+        <span class="ranking-pts">⭐ <%= guest.points %></span>
+
+        <%= link_to "Ver", admin_guest_path(guest),
+              class: "admin-btn admin-btn--ghost admin-btn--sm",
+              style: "margin-left:var(--space-sm);" %>
+      </div>
+    <% end %>
+  </div>
+
+<% else %>
+  <div class="admin-card">
+    <div class="admin-card__body" style="text-align:center; color:var(--text-soft); padding:var(--space-2xl);">
+      <p style="font-size:2rem; margin-bottom:var(--space-md);">🏆</p>
+      <p>Aún no hay puntos acumulados.</p>
+    </div>
+  </div>
+<% end %>

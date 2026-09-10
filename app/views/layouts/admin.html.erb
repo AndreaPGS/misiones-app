@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title><%= content_for(:title) || "Admin — Misiones" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#073B4C">
+    <%= csrf_meta_tags %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="admin-body">
+
+    <% if notice.present? %>
+      <div class="flash flash--notice" role="status"><%= notice %></div>
+    <% end %>
+    <% if alert.present? %>
+      <div class="flash flash--alert" role="alert"><%= alert %></div>
+    <% end %>
+
+    <div class="admin-shell">
+
+      <%# ── Sidebar ── %>
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar__brand">
+          <span class="admin-sidebar__icon">✦</span>
+          <span class="admin-sidebar__title">Misiones</span>
+        </div>
+
+        <nav class="admin-nav">
+          <%= link_to admin_root_path, class: "admin-nav__item #{active_nav?(admin_root_path, exact: true)}" do %>
+            <span class="admin-nav__icon">🏠</span>
+            <span>Dashboard</span>
+          <% end %>
+          <%= link_to admin_guests_path, class: "admin-nav__item #{active_nav?(admin_guests_path)}" do %>
+            <span class="admin-nav__icon">👥</span>
+            <span>Invitados</span>
+          <% end %>
+          <%= link_to admin_missions_path, class: "admin-nav__item #{active_nav?(admin_missions_path)}" do %>
+            <span class="admin-nav__icon">🎯</span>
+            <span>Misiones</span>
+          <% end %>
+          <%= link_to admin_mission_assignments_path, class: "admin-nav__item #{active_nav?(admin_mission_assignments_path)}" do %>
+            <span class="admin-nav__icon">📋</span>
+            <span>Asignaciones</span>
+          <% end %>
+          <%= link_to admin_ranking_path, class: "admin-nav__item #{active_nav?(admin_ranking_path)}" do %>
+            <span class="admin-nav__icon">🏆</span>
+            <span>Ranking</span>
+          <% end %>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <%= link_to root_path, class: "admin-nav__item admin-nav__item--muted" do %>
+            <span class="admin-nav__icon">👁</span>
+            <span>Ver app</span>
+          <% end %>
+          <%= button_to "Salir", admin_logout_path, method: :delete,
+                class: "admin-nav__item admin-nav__item--danger",
+                form: { style: "width:100%" } %>
+        </div>
+      </aside>
+
+      <%# ── Main content ── %>
+      <main class="admin-main">
+        <%= yield %>
+      </main>
+
+    </div>
+  </body>
+</html>

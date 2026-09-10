@@ -1,0 +1,76 @@
+<% content_for :title, "Asignaciones" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Asignaciones</h1>
+    <p class="admin-page-subtitle"><%= @assignments.count %> <%= @status_filter.present? ? "filtradas" : "en total" %></p>
+  </div>
+  <%= link_to "＋ Nueva", new_admin_mission_assignment_path, class: "admin-btn admin-btn--primary" %>
+</div>
+
+<%# Filter chips %>
+<div class="filter-bar">
+  <%= link_to "Todas",
+        admin_mission_assignments_path,
+        class: "filter-chip #{@status_filter.blank? ? 'filter-chip--active' : ''}" %>
+  <%= link_to "🟡 Activas",
+        admin_mission_assignments_path(status: "assigned"),
+        class: "filter-chip filter-chip--assigned #{@status_filter == 'assigned' ? 'filter-chip--active' : ''}" %>
+  <%= link_to "✅ Completadas",
+        admin_mission_assignments_path(status: "completed"),
+        class: "filter-chip filter-chip--completed #{@status_filter == 'completed' ? 'filter-chip--active' : ''}" %>
+  <%= link_to "❌ Abandonadas",
+        admin_mission_assignments_path(status: "abandoned"),
+        class: "filter-chip filter-chip--abandoned #{@status_filter == 'abandoned' ? 'filter-chip--active' : ''}" %>
+</div>
+
+<div class="admin-card">
+  <% if @assignments.any? %>
+    <div class="admin-list">
+      <% @assignments.each do |a| %>
+        <div class="admin-list-item">
+          <div class="avatar avatar--sm admin-list-item__avatar">
+            <% if a.guest.picture.present? %>
+              <img src="<%= a.guest.picture %>" alt="<%= a.guest.name %>">
+            <% else %>
+              <div class="avatar__initials" style="font-size:.75rem;">
+                <%= a.guest.name.split.map(&:first).first(2).join.upcase %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="admin-list-item__body">
+            <p class="admin-list-item__title"><%= a.guest.name %></p>
+            <p class="admin-list-item__meta">
+              <%= a.mission.description.truncate(50) %>
+            </p>
+            <p class="admin-list-item__meta" style="margin-top:2px;">
+              <span class="<%= status_chip_class(a.status) %>"><%= status_label(a.status) %></span>
+              &nbsp;· <%= a.assigned_at&.strftime("%-d %b %H:%M") %>
+              <% if a.completed? %>&nbsp;· +<%= a.mission.score %> pts<% end %>
+            </p>
+          </div>
+
+          <div class="admin-list-item__actions">
+            <%= link_to "Ver", admin_mission_assignment_path(a),
+                  class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+            <% if a.assigned? %>
+              <%= button_to "✅",
+                    complete_admin_mission_assignment_path(a),
+                    method: :patch,
+                    class: "admin-btn admin-btn--complete admin-btn--sm",
+                    data: { turbo_confirm: "¿Confirmar misión completada? Se sumarán #{a.mission.score} puntos." } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="admin-card__body" style="text-align:center; color:var(--text-soft); padding:var(--space-2xl);">
+      <p style="font-size:2rem; margin-bottom:var(--space-md);">📋</p>
+      <p>Sin asignaciones
+        <%= @status_filter.present? ? "con estado \"#{status_label(@status_filter)}\"" : "aún" %>.
+      </p>
+    </div>
+  <% end %>
+</div>

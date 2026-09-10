@@ -1,0 +1,44 @@
+<% content_for :title, "Misiones Secretas" %>
+
+<div class="home">
+
+  <header class="home__header">
+    <h1 class="home__title">
+      ✦ Misiones<br>
+      <span class="home__title-accent">Secretas</span> ✦
+    </h1>
+    <p class="home__subtitle">¿Estás listo para jugar?</p>
+    <span class="home__instruction">👇 Toca tu personaje para ver tu misión</span>
+  </header>
+
+  <% if @guests.any? %>
+    <div class="guest-grid">
+      <% @guests.each do |guest| %>
+        <%= link_to guest_verification_path(guest, step: 1), class: "guest-card" do %>
+          <div class="guest-card__image-wrap">
+            <% if guest.picture.present? %>
+              <img
+                class="guest-card__image"
+                src="<%= guest.picture %>"
+                alt="<%= guest.name %>"
+                loading="lazy"
+              >
+            <% else %>
+              <div class="guest-card__image--placeholder">
+                <%= guest.name.split.map(&:first).first(2).join.upcase %>
+              </div>
+            <% end %>
+          </div>
+          <p class="guest-card__name"><%= guest.name.split.first %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mission-empty text-center">
+      <span class="mission-empty__icon">🎪</span>
+      <p class="mission-empty__title">La fiesta está por comenzar</p>
+      <p class="mission-empty__text">Aún no hay invitados registrados.</p>
+    </div>
+  <% end %>
+
+</div>

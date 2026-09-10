@@ -1,0 +1,18 @@
+alice_assigned:
+  guest: alice
+  mission: espionage
+  status: 0
+  assigned_at: <%= Time.current.iso8601 %>
+
+bob_completed:
+  guest: bob
+  mission: dance_off
+  status: 1
+  assigned_at: <%= 1.hour.ago.iso8601 %>
+  completed_at: <%= Time.current.iso8601 %>
+
+diana_assigned:
+  guest: diana
+  mission: karaoke
+  status: 0
+  assigned_at: <%= Time.current.iso8601 %>

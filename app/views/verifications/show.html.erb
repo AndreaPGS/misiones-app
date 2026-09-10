@@ -1,0 +1,71 @@
+<% content_for :title, "¿Eres #{@guest.name.split.first}?" %>
+
+<%# Step content definitions %>
+<% steps = {
+  1 => {
+    question: "¿Eres #{@guest.name.split.first}?",
+    sub:      nil,
+    button:   "Sí, soy yo",
+    color:    "btn--green"
+  },
+  2 => {
+    question: "¿Estás seguro de que eres #{@guest.name.split.first}?",
+    sub:      "Piénsalo bien antes de continuar.",
+    button:   "Sí, estoy seguro",
+    color:    "btn--blue"
+  },
+  3 => {
+    question: "Espera... ¿de verdad eres #{@guest.name.split.first}? 🤔",
+    sub:      "No mientas. Haz clic para ver tu misión.",
+    button:   "Ver mi misión →",
+    color:    "btn--pink"
+  }
+} %>
+
+<% current = steps[@step] %>
+
+<div class="verification">
+  <div class="verification__content">
+
+    <%# Step dots %>
+    <div class="step-dots">
+      <% 3.times do |i| %>
+        <div class="step-dot <%= 'step-dot--active' if i < @step %>"></div>
+      <% end %>
+    </div>
+
+    <%# Avatar + name %>
+    <div class="verification__avatar-wrap">
+      <div class="avatar avatar--lg">
+        <% if @guest.picture.present? %>
+          <img src="<%= @guest.picture %>" alt="<%= @guest.name %>">
+        <% else %>
+          <div class="avatar__initials">
+            <%= @guest.name.split.map(&:first).first(2).join.upcase %>
+          </div>
+        <% end %>
+      </div>
+      <p class="verification__name"><%= @guest.name %></p>
+    </div>
+
+    <%# Question card %>
+    <div class="verification__card">
+      <p class="verification__question"><%= current[:question] %></p>
+      <% if current[:sub] %>
+        <p class="verification__sub"><%= current[:sub] %></p>
+      <% end %>
+    </div>
+
+    <%# Action %>
+    <div class="verification__actions">
+      <%= button_to current[:button],
+            guest_verification_path(@guest),
+            method: :post,
+            class: "btn #{current[:color]}" %>
+    </div>
+
+    <%# Back link to home %>
+    <%= link_to "← Volver al inicio", root_path, class: "verification__back" %>
+
+  </div>
+</div>

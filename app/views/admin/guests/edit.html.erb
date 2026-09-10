@@ -1,0 +1,14 @@
+<% content_for :title, "Editar — #{@guest.name}" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Editar invitado</h1>
+    <p class="admin-page-subtitle"><%= @guest.name %></p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card__body">
+    <%= render "form", guest: @guest %>
+  </div>
+</div>

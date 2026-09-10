@@ -1,0 +1,31 @@
+alice:
+  name: Alice
+  phone: "555-0001"
+  email: alice@example.com
+  picture: ""
+  points: 10
+  attempts: 2
+
+bob:
+  name: Bob
+  phone: "555-0002"
+  email: bob@example.com
+  picture: ""
+  points: 0
+  attempts: 1
+
+charlie:
+  name: Charlie
+  phone: "555-0003"
+  email: charlie@example.com
+  picture: ""
+  points: 0
+  attempts: 0
+
+diana:
+  name: Diana
+  phone: "555-0004"
+  email: diana@example.com
+  picture: ""
+  points: 5
+  attempts: 1

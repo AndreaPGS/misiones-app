@@ -1,0 +1,23 @@
+espionage:
+  description: Consigue una foto con el anfitrión sin que se dé cuenta
+  score: 20
+  active: true
+  target: alice
+
+dance_off:
+  description: Convence a alguien de bailar contigo durante 30 segundos
+  score: 15
+  active: true
+  target: bob
+
+karaoke:
+  description: Canta una canción completa frente a todos
+  score: 25
+  active: true
+  target: diana
+
+inactive_mission:
+  description: Esta misión está desactivada
+  score: 5
+  active: false
+  target: charlie

@@ -1,0 +1,58 @@
+<%# Partial: shared form for new/edit guest %>
+
+<% if guest.errors.any? %>
+  <div class="error-summary">
+    <p class="error-summary__title"><%= pluralize(guest.errors.count, "error") %></p>
+    <ul class="error-summary__list">
+      <% guest.errors.full_messages.each do |msg| %>
+        <li class="error-summary__item"><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: [:admin, guest], class: "admin-form" do |f| %>
+
+  <div class="form-group">
+    <%= f.label :name, "Nombre", class: "form-label form-label--required" %>
+    <%= f.text_field :name, class: "form-input", placeholder: "Nombre completo", autofocus: true %>
+  </div>
+
+  <div class="form-group--row">
+    <div class="form-group">
+      <%= f.label :phone, "Teléfono", class: "form-label" %>
+      <%= f.text_field :phone, class: "form-input", placeholder: "555-0000" %>
+    </div>
+    <div class="form-group">
+      <%= f.label :email, "Email", class: "form-label" %>
+      <%= f.email_field :email, class: "form-input", placeholder: "nombre@ejemplo.com" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :picture, "URL de foto", class: "form-label" %>
+    <%= f.url_field :picture, class: "form-input",
+          placeholder: "https://ui-avatars.com/api/?name=..." %>
+    <p class="form-hint">Recomendado: URL directa a la imagen. Proporciones 3:4 para mejor resultado.</p>
+  </div>
+
+  <div class="form-group--row">
+    <div class="form-group">
+      <%= f.label :points, "Puntos", class: "form-label" %>
+      <%= f.number_field :points, class: "form-input", min: 0 %>
+    </div>
+    <div class="form-group">
+      <%= f.label :attempts, "Cambios disponibles", class: "form-label" %>
+      <%= f.number_field :attempts, class: "form-input", min: 0 %>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit guest.persisted? ? "Guardar cambios" : "Crear invitado",
+          class: "admin-btn admin-btn--primary" %>
+    <%= link_to "Cancelar",
+          guest.persisted? ? admin_guest_path(guest) : admin_guests_path,
+          class: "admin-btn admin-btn--ghost" %>
+  </div>
+
+<% end %>

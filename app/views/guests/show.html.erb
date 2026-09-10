@@ -1,0 +1,70 @@
+<% content_for :title, @guest.name %>
+
+<div class="profile">
+
+  <%# ── Hero ── %>
+  <div class="profile__hero">
+    <div class="avatar avatar--xl profile__hero-image">
+      <% if @guest.picture.present? %>
+        <img src="<%= @guest.picture %>" alt="<%= @guest.name %>">
+      <% else %>
+        <div class="avatar__initials" style="font-size: 2.5rem;">
+          <%= @guest.name.split.map(&:first).first(2).join.upcase %>
+        </div>
+      <% end %>
+    </div>
+
+    <h1 class="profile__name"><%= @guest.name %></h1>
+
+    <div class="stats-row">
+      <div class="stat-badge">
+        <span class="stat-badge__value">⭐ <%= @guest.points %></span>
+        <span class="stat-badge__label">Puntos</span>
+      </div>
+      <div class="stat-badge">
+        <span class="stat-badge__value stat-badge__value--attempts">🔄 <%= @guest.attempts %></span>
+        <span class="stat-badge__label">Cambios</span>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Misión activa ── %>
+  <div class="profile__section">
+    <p class="section-label">Tu misión</p>
+    <%= render "guest_missions/mission_state", guest: @guest,
+          assignment: @active_assignment, mission: @current_mission %>
+  </div>
+
+  <%# ── Historial ── %>
+  <% past = @history.reject { |a| a.assigned? } %>
+  <% if past.any? %>
+    <div class="profile__section mt-lg">
+      <p class="section-label">Historial</p>
+      <div class="history-list">
+        <% past.each do |assignment| %>
+          <div class="history-item">
+            <span class="history-item__status">
+              <%= assignment.completed? ? "✅" : "❌" %>
+            </span>
+            <div class="history-item__body">
+              <p class="history-item__mission">
+                <%= assignment.mission.description.truncate(60) %>
+              </p>
+              <p class="history-item__meta">
+                <span class="status-chip status-chip--<%= assignment.status %>">
+                  <%= assignment.status %>
+                </span>
+                &nbsp;
+                <%= assignment.assigned_at&.strftime("%-d %b") %>
+              </p>
+            </div>
+            <% if assignment.completed? %>
+              <span class="history-item__points">+<%= assignment.mission.score %>pts</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+</div>

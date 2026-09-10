@@ -1,0 +1,14 @@
+<% content_for :title, "Nueva misión" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Nueva misión</h1>
+    <p class="admin-page-subtitle">Define una misión secreta para la fiesta</p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card__body">
+    <%= render "form", mission: @mission %>
+  </div>
+</div>

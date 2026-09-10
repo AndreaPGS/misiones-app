@@ -1,0 +1,89 @@
+<% content_for :title, "Dashboard" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Dashboard</h1>
+    <p class="admin-page-subtitle">Resumen de la fiesta en tiempo real</p>
+  </div>
+</div>
+
+<%# ── Stats grid ── %>
+<div class="admin-stats-grid">
+  <div class="admin-stat-card admin-stat-card--blue">
+    <p class="admin-stat-card__value"><%= @total_guests %></p>
+    <p class="admin-stat-card__label">Invitados</p>
+  </div>
+  <div class="admin-stat-card admin-stat-card--green">
+    <p class="admin-stat-card__value"><%= @active_missions %></p>
+    <p class="admin-stat-card__label">Misiones activas</p>
+  </div>
+  <div class="admin-stat-card admin-stat-card--yellow">
+    <p class="admin-stat-card__value"><%= @assigned_count %></p>
+    <p class="admin-stat-card__label">En curso</p>
+  </div>
+  <div class="admin-stat-card admin-stat-card--pink">
+    <p class="admin-stat-card__value"><%= @completed_count %></p>
+    <p class="admin-stat-card__label">Completadas</p>
+  </div>
+</div>
+
+<%# ── Top 3 ── %>
+<% if @top_guests.any? %>
+  <div class="admin-card mt-lg">
+    <div class="admin-card__header">
+      <h2 class="admin-card__title">🏆 Líderes del momento</h2>
+      <%= link_to "Ver ranking completo →", admin_ranking_path, class: "admin-btn admin-btn--ghost admin-btn--sm" %>
+    </div>
+    <div class="admin-card__body">
+      <div class="admin-list">
+        <% @top_guests.each_with_index do |guest, i| %>
+          <div class="admin-list-item">
+            <span style="font-size:1.5rem; min-width:32px; text-align:center;">
+              <%= ["🥇","🥈","🥉"][i] %>
+            </span>
+            <div class="avatar avatar--sm">
+              <% if guest.picture.present? %>
+                <img src="<%= guest.picture %>" alt="<%= guest.name %>">
+              <% else %>
+                <div class="avatar__initials" style="font-size:.75rem;">
+                  <%= guest.name.split.map(&:first).first(2).join.upcase %>
+                </div>
+              <% end %>
+            </div>
+            <div class="admin-list-item__body">
+              <p class="admin-list-item__title"><%= guest.name %></p>
+              <p class="admin-list-item__meta">
+                <%= guest.mission_assignments.assigned.count %> misión(es) activa(s)
+              </p>
+            </div>
+            <span style="font-weight:800; color:#c49a00;">⭐ <%= guest.points %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# ── Quick links ── %>
+<div class="admin-stats-grid mt-lg">
+  <div class="admin-stat-card">
+    <%= link_to admin_guests_path, class: "admin-btn admin-btn--primary admin-btn--full" do %>
+      👥 Gestionar invitados
+    <% end %>
+  </div>
+  <div class="admin-stat-card">
+    <%= link_to admin_missions_path, class: "admin-btn admin-btn--ghost admin-btn--full" do %>
+      🎯 Gestionar misiones
+    <% end %>
+  </div>
+  <div class="admin-stat-card">
+    <%= link_to admin_mission_assignments_path(status: "assigned"), class: "admin-btn admin-btn--ghost admin-btn--full" do %>
+      📋 Ver misiones activas
+    <% end %>
+  </div>
+  <div class="admin-stat-card">
+    <%= link_to admin_ranking_path, class: "admin-btn admin-btn--ghost admin-btn--full" do %>
+      🏆 Ver ranking
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<%# Partial: estado de la misión del invitado.
+    Usado tanto en guests#show como en guest_missions#show.
+    Variables locales: guest, assignment, mission %>
+
+<% if mission.present? %>
+
+  <%# Misión activa %>
+  <div class="mission-card">
+    <div class="mission-card__header">
+      <span class="mission-card__icon">🎯</span>
+      <span class="mission-card__score">★ <%= mission.score %> pts</span>
+    </div>
+    <p class="mission-card__description"><%= mission.description %></p>
+  </div>
+
+  <% if guest.attempts > 0 %>
+    <div class="mt-md">
+      <%= button_to "🔀 Cambiar misión",
+            guest_mission_path(guest),
+            method: :patch,
+            class: "btn btn--blue btn--sm",
+            data: { turbo_confirm: "¿Usar un intento de cambio? Te quedarán #{guest.attempts - 1}." } %>
+    </div>
+  <% else %>
+    <div class="no-attempts-notice mt-md">
+      <span class="no-attempts-notice__icon">🔒</span>
+      <p class="no-attempts-notice__text">
+        Ya usaste todos tus cambios. ¡Esta es tu misión definitiva, ve a por ella!
+      </p>
+    </div>
+  <% end %>
+
+<% else %>
+
+  <%# Sin misión activa %>
+  <div class="mission-empty">
+    <span class="mission-empty__icon">🎲</span>
+    <p class="mission-empty__title">Aún no tienes una misión</p>
+    <p class="mission-empty__text">¿Listo para jugar? Recibe tu misión secreta.</p>
+  </div>
+
+  <div class="mt-md">
+    <%= button_to "✨ Recibir misión",
+          guest_mission_path(guest),
+          method: :post,
+          class: "btn btn--green" %>
+  </div>
+
+<% end %>
