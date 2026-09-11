@@ -29,6 +29,8 @@ class MissionAssignmentService
     ServiceResult.ok(assignment)
   rescue ActiveRecord::RecordInvalid => e
     ServiceResult.fail(e.record.errors.full_messages.to_sentence)
+  rescue ActiveRecord::RecordNotUnique
+    ServiceResult.fail("La misión ya fue asignada a otro invitado.")
   end
 
   # Abandon the current assignment and assign a new one.
@@ -73,6 +75,8 @@ class MissionAssignmentService
     no_missions ? ServiceResult.fail("No hay misiones disponibles para este invitado.") : result
   rescue ActiveRecord::RecordInvalid => e
     ServiceResult.fail(e.record.errors.full_messages.to_sentence)
+  rescue ActiveRecord::RecordNotUnique
+    ServiceResult.fail("La misión ya fue asignada a otro invitado.")
   end
 
   # Mark an assignment as completed and award points.
@@ -93,6 +97,8 @@ class MissionAssignmentService
     ServiceResult.ok(assignment)
   rescue ActiveRecord::RecordInvalid => e
     ServiceResult.fail(e.record.errors.full_messages.to_sentence)
+  rescue ActiveRecord::RecordNotUnique
+    ServiceResult.fail("La misión ya fue asignada a otro invitado.")
   end
 
   # Admin manually assigns a specific mission to a guest.
@@ -100,6 +106,7 @@ class MissionAssignmentService
   #   - guest has no active assignment
   #   - mission is active
   #   - guest is not in mission's restricted_guests
+  #   - mission has never been assigned
   def self.assign_manual(guest, mission)
     if guest.active_assignment.present?
       return ServiceResult.fail("El invitado ya tiene una misión activa.")
@@ -113,6 +120,10 @@ class MissionAssignmentService
       return ServiceResult.fail("Este invitado tiene restricción para esa misión.")
     end
 
+    if MissionAssignment.exists?(mission_id: mission.id)
+      return ServiceResult.fail("La misión ya fue asignada a otro invitado.")
+    end
+
     assignment = MissionAssignment.create!(
       guest: guest,
       mission: mission,
@@ -122,6 +133,8 @@ class MissionAssignmentService
     ServiceResult.ok(assignment)
   rescue ActiveRecord::RecordInvalid => e
     ServiceResult.fail(e.record.errors.full_messages.to_sentence)
+  rescue ActiveRecord::RecordNotUnique
+    ServiceResult.fail("La misión ya fue asignada a otro invitado.")
   end
 
   # --- Private helpers ----------------------------------------------------
@@ -129,7 +142,8 @@ class MissionAssignmentService
   # Find an active mission that:
   #   1. is marked active
   #   2. the guest is NOT in restricted_guests
-  #   3. optionally excludes a specific mission (used on change to avoid re-assigning same one)
+  #   3. excludes missions already assigned to any guest
+  #   4. optionally excludes a specific mission (used on change to avoid re-assigning same one)
   #
   # Returns a Mission or nil.
   def self.find_valid_mission_for(guest, exclude_mission_id: nil)
@@ -139,8 +153,8 @@ class MissionAssignmentService
       .where("gm.guest_id = ?", guest.id)
       .pluck(:id)
 
-    # IDs already assigned to this guest (any status) — avoid repeating history
-    already_assigned_ids = guest.mission_assignments.pluck(:mission_id)
+    # A mission is unique across all guests, including completed/abandoned history.
+    already_assigned_ids = MissionAssignment.distinct.pluck(:mission_id)
 
     candidates = Mission
       .active
@@ -149,13 +163,9 @@ class MissionAssignmentService
 
     candidates = candidates.where.not(id: exclude_mission_id) if exclude_mission_id
 
-    # If no unassigned missions remain, fall back to any non-restricted active mission
-    # (excluding current if changing)
+    # If no unassigned missions remain, there is no valid mission to assign.
     if candidates.empty?
-      candidates = Mission
-        .active
-        .where.not(id: restricted_ids)
-      candidates = candidates.where.not(id: exclude_mission_id) if exclude_mission_id
+      return nil
     end
 
     candidates.order("RANDOM()").first

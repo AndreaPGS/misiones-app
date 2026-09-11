@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_023847) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_023847) do
     t.index ["guest_id", "status"], name: "index_mission_assignments_on_guest_id_assigned_unique", unique: true, where: "(status = 0)"
     t.index ["guest_id"], name: "index_mission_assignments_on_guest_id"
     t.index ["mission_id"], name: "index_mission_assignments_on_mission_id"
+    t.index ["mission_id"], name: "index_mission_assignments_on_mission_id_unique", unique: true
   end
 
   create_table "missions", force: :cascade do |t|

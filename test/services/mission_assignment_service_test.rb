@@ -34,8 +34,14 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
   # =========================================================================
 
   class AssignTest < ActiveSupport::TestCase
+    def available_mission
+      Mission.create!(description: "Misión disponible", score: 10,
+                      active: true, target: guests(:charlie))
+    end
+
     test "assigns a valid mission to a guest with no active assignment" do
       # bob has no active assignment (his only assignment is completed)
+      available_mission
       result = MissionAssignmentService.assign(guests(:bob))
 
       assert result.success?, result.error
@@ -45,6 +51,7 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
     end
 
     test "returned assignment has assigned_at set" do
+      available_mission
       result = MissionAssignmentService.assign(guests(:bob))
       assert_not_nil result.payload.assigned_at
     end
@@ -84,6 +91,7 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
     end
 
     test "increments mission_assignments count on success" do
+      available_mission
       assert_difference "MissionAssignment.count", 1 do
         MissionAssignmentService.assign(guests(:bob))
       end
@@ -95,8 +103,14 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
   # =========================================================================
 
   class ChangeTest < ActiveSupport::TestCase
+    def available_mission
+      Mission.create!(description: "Misión para cambio", score: 10,
+                      active: true, target: guests(:charlie))
+    end
+
     test "abandons current assignment and assigns a new one" do
       # alice: 2 attempts, assigned to espionage — dance_off and karaoke are available
+      available_mission
       old_assignment = guests(:alice).active_assignment
       result = MissionAssignmentService.change(guests(:alice))
 
@@ -107,6 +121,7 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
     end
 
     test "decrements guest attempts by one" do
+      available_mission
       alice = guests(:alice)
       original_attempts = alice.attempts
 
@@ -128,7 +143,8 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
       charlie = guests(:charlie)
       MissionAssignment.create!(
         guest: charlie,
-        mission: missions(:dance_off),
+        mission: Mission.create!(description: "Misión para Charlie", score: 10,
+                                 active: true, target: charlie),
         status: :assigned
       )
       charlie.reload
@@ -160,6 +176,7 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
     end
 
     test "creates a new assignment record on success" do
+      available_mission
       assert_difference "MissionAssignment.count", 1 do
         MissionAssignmentService.change(guests(:alice))
       end
@@ -227,13 +244,19 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
   # =========================================================================
 
   class AssignManualTest < ActiveSupport::TestCase
+    def available_mission
+      Mission.create!(description: "Misión manual disponible", score: 10,
+                      active: true, target: guests(:charlie))
+    end
+
     test "assigns a specific active mission to a guest with no active assignment" do
-      result = MissionAssignmentService.assign_manual(guests(:bob), missions(:espionage))
+      mission = available_mission
+      result = MissionAssignmentService.assign_manual(guests(:bob), mission)
 
       assert result.success?, result.error
       assert result.payload.assigned?
       assert_equal guests(:bob), result.payload.guest
-      assert_equal missions(:espionage), result.payload.mission
+      assert_equal mission, result.payload.mission
     end
 
     test "fails when guest already has an active assignment" do
@@ -260,14 +283,22 @@ class MissionAssignmentServiceTest < ActiveSupport::TestCase
     end
 
     test "increments mission_assignments count on success" do
+      mission = available_mission
       assert_difference "MissionAssignment.count", 1 do
-        MissionAssignmentService.assign_manual(guests(:bob), missions(:dance_off))
+        MissionAssignmentService.assign_manual(guests(:bob), mission)
       end
     end
 
     test "assigned_at is set automatically" do
-      result = MissionAssignmentService.assign_manual(guests(:bob), missions(:espionage))
+      result = MissionAssignmentService.assign_manual(guests(:bob), available_mission)
       assert_not_nil result.payload.assigned_at
+    end
+
+    test "fails when mission was already assigned to another guest" do
+      result = MissionAssignmentService.assign_manual(guests(:bob), missions(:espionage))
+
+      assert result.failure?
+      assert_match "ya fue asignada", result.error
     end
   end
 end

@@ -14,6 +14,9 @@ class MissionAssignment < ApplicationRecord
     conditions: -> { where(status: :assigned) },
     message: "already has an active mission assignment"
   }
+  validates :mission_id, uniqueness: {
+    message: "already has an assignment"
+  }
 
   # Callbacks
   before_create :set_assigned_at

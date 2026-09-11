@@ -4,7 +4,17 @@ class Admin::MissionsController < Admin::ApplicationController
   before_action :set_mission, only: [ :show, :edit, :update, :destroy ]
 
   def index
+    @grouping = %w[score target].include?(params[:group]) ? params[:group] : "none"
     @missions = Mission.includes(:target).order(:description)
+    @mission_groups = case @grouping
+                      when "score"
+                        @missions.group_by(&:score).sort_by { |score, _| -score }
+                      when "target"
+                        @missions.group_by { |mission| mission.target.name }
+                                          .sort_by { |target, _| target }
+                      else
+                        [[nil, @missions]]
+                      end
   end
 
   def show

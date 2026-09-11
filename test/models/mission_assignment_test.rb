@@ -1,10 +1,15 @@
 require "test_helper"
 
 class MissionAssignmentTest < ActiveSupport::TestCase
-  def valid_assignment(guest: guests(:charlie), mission: missions(:espionage))
+  def fresh_mission
+    Mission.create!(description: "Misión de prueba #{SecureRandom.hex(4)}", score: 10,
+                    active: true, target: guests(:charlie))
+  end
+
+  def valid_assignment(guest: guests(:charlie), mission: nil)
     MissionAssignment.new(
       guest: guest,
-      mission: mission,
+      mission: mission || fresh_mission,
       status: :assigned,
       assigned_at: Time.current
     )
@@ -67,7 +72,7 @@ class MissionAssignmentTest < ActiveSupport::TestCase
   test "guest can have a second assignment if first is completed" do
     new_assignment = MissionAssignment.new(
       guest: guests(:bob),
-      mission: missions(:espionage),
+      mission: fresh_mission,
       status: :assigned,
       assigned_at: Time.current
     )
@@ -80,7 +85,7 @@ class MissionAssignmentTest < ActiveSupport::TestCase
 
     new_assignment = MissionAssignment.new(
       guest: alice,
-      mission: missions(:dance_off),
+      mission: fresh_mission,
       status: :assigned,
       assigned_at: Time.current
     )
@@ -90,7 +95,7 @@ class MissionAssignmentTest < ActiveSupport::TestCase
   test "multiple completed assignments for same guest are valid" do
     second = MissionAssignment.new(
       guest: guests(:bob),
-      mission: missions(:espionage),
+      mission: fresh_mission,
       status: :completed,
       assigned_at: 2.hours.ago,
       completed_at: 1.hour.ago
@@ -103,7 +108,7 @@ class MissionAssignmentTest < ActiveSupport::TestCase
   test "assigned_at is set automatically on create" do
     a = MissionAssignment.create!(
       guest: guests(:charlie),
-      mission: missions(:espionage),
+      mission: fresh_mission,
       status: :assigned
     )
     assert_not_nil a.assigned_at
@@ -113,7 +118,7 @@ class MissionAssignmentTest < ActiveSupport::TestCase
     fixed_time = 1.day.ago
     a = MissionAssignment.create!(
       guest: guests(:charlie),
-      mission: missions(:espionage),
+      mission: fresh_mission,
       status: :assigned,
       assigned_at: fixed_time
     )
